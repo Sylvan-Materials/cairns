@@ -20,7 +20,7 @@ namespace cairns{
         constexpr fixed_stack() = default;
         constexpr fixed_stack(fixed_stack&& other) noexcept : current_size(other.current_size) {
             for (size_t i = 0; i < current_size; ++i) {
-                (*this)data[i] = std::move(other[i]);
+                (*this)[i] = std::move(other[i]);
             }
         };
 
