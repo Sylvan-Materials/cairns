@@ -17,12 +17,12 @@ namespace cairns{
     struct fixed_stack : std::array<T, Capacity> {
         size_t current_size = 0;
 
-   constexpr fixed_stack() = default;
-    constexpr fixed_stack(fixed_stack&& other) noexcept : _size(other._size) {
-        for (size_t i = 0; i < _size; ++i) {
-            _data[i] = std::move(other._data[i]);
-        }
-    };
+        constexpr fixed_stack() = default;
+        constexpr fixed_stack(fixed_stack&& other) noexcept : current_size(other.current_size) {
+            for (size_t i = 0; i < current_size; ++i) {
+                (*this)data[i] = std::move(other[i]);
+            }
+        };
 
         constexpr void push(T val) pre(current_size < Capacity) {
             if (current_size < Capacity) {
