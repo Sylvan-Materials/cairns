@@ -18,10 +18,11 @@ namespace cairns{
         size_t current_size = 0;
 
         constexpr fixed_stack() = default;
-        constexpr fixed_stack(const fixed_stack&) = default;
-        constexpr fixed_stack(fixed_stack&&) noexcept = default;
-        constexpr fixed_stack& operator=(const fixed_stack&) = default;
-        constexpr fixed_stack& operator=(fixed_stack&&) noexcept = default;
+        constexpr fixed_stack(fixed_stack&& other) noexcept : current_size(other.current_size) {
+            for (size_t i = 0; i < current_size; ++i) {
+                (*this)[i] = std::move(other[i]);
+            }
+        };
 
         constexpr void push(T val) pre(current_size < Capacity) {
             if (current_size < Capacity) {
