@@ -20,4 +20,8 @@ or
 - fixed_string
 - fixed_accumulator
 - fixed_stack
+- fixed_map
+- bit_set
+
+- dfs
 
