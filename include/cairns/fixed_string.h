@@ -39,17 +39,6 @@ namespace cairns{
             return *this;
         }
 
-        constexpr fixed_string& append(std::string_view sv) noexcept {
-            for (char c : sv) {
-                if (size() + 1 < N) {
-                    push_back(c);
-                } else {
-                    break;
-                }
-            }
-            return *this;
-        }
-
         constexpr fixed_string& append(std::u8string_view sv) noexcept {
             for (char8_t c : sv) {
                 if (size() + 1 < N) {
