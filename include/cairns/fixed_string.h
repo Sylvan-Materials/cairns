@@ -41,7 +41,7 @@ namespace cairns{
 
         constexpr fixed_string& append(std::u8string_view sv) noexcept {
             for (char8_t c : sv) {
-                if (size() + 1 < N) {
+                if (length + 1 < N) {
                     push_back(static_cast<char>(c));
                 } else {
                     break;
@@ -60,7 +60,7 @@ namespace cairns{
                 buf[pos++] = static_cast<char>('0' + (val % 10));
                 val /= 10;
             }
-            while (pos > 0 && size() + 1 < N) {
+            while (pos > 0 && length + 1 < N) {
                 push_back(buf[--pos]);
             }
             return *this;
@@ -77,7 +77,7 @@ namespace cairns{
         constexpr fixed_string& operator+=(std::string_view sv) noexcept { return append(sv); }
         constexpr fixed_string& operator+=(std::u8string_view sv) noexcept { return append(sv); }
         constexpr fixed_string& operator+=(char c) noexcept {
-            if (size() + 1 < N) push_back(c);
+            if (length + 1 < N) push_back(c);
             return *this;
         }
     };
