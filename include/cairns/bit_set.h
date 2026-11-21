@@ -50,6 +50,40 @@ struct bit_set {
         return test(idx);
     }
 
+    struct reference {
+        bit_set& parent;
+        size_t idx;
+
+        constexpr reference& operator=(bool value) {
+            if (value) {
+                parent.set(idx);
+            } else {
+                parent.reset(idx);
+            }
+            return *this;
+        }
+
+        constexpr reference& operator=(const reference& other) {
+            return *this = static_cast<bool>(other);
+        }
+
+        constexpr operator bool() const {
+            return parent.test(idx);
+        }
+
+        constexpr bool operator~() const {
+            return !parent.test(idx);
+        }
+
+        constexpr reference& flip() {
+            return *this = !parent.test(idx);
+        }
+    };
+
+    constexpr reference operator[](size_t idx) {
+        return reference{*this, idx};
+    }
+
     // Set Union (this |= other) — returns true if any new bits were added (useful for fixed-point loops)
     constexpr bool union_with(const bit_set& other) {
         bool changed = false;
