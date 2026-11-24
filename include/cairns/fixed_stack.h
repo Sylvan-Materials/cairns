@@ -65,6 +65,17 @@ namespace cairns{
             return false;
         }
 
+        template <typename Pred>
+        requires std::predicate<Pred&, const T&>
+        constexpr bool anyOf(Pred&& pred) const noexcept(std::is_nothrow_invocable_v<Pred&, const T&>) {
+            for (std::size_t i = 0; i < current_size; ++i) {
+                if (std::invoke(pred, (*this)[i])) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
     };
 
 }
