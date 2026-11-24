@@ -66,6 +66,7 @@ namespace cairns{
             return *this;
         }
         constexpr size_t size() const { return length; }
+        constexpr bool empty() const { return current_size == 0; }
 
         template<size_t M>
         constexpr auto operator+(const fixed_string<M>& other) const {
