@@ -30,7 +30,7 @@ namespace cairns{
         constexpr fixed_string& append(std::string_view sv) noexcept
             pre(N > 0 && length < N)
             pre(sv.size() < N - length)
-            post(r : r.length < N && r.data[r.length] == '\0')
+            post(length < N && data[length] == '\0')
         {
             for (char c : sv) {
                 data[length++] = c;
