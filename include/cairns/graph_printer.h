@@ -134,7 +134,8 @@ namespace detail {
                     constexpr std::string_view mname = [&]() consteval {
                         if constexpr (label_annot != std::meta::info{}) {
                             using LabelT = typename[:std::meta::type_of(label_annot):];
-                            return std::meta::extract<LabelT>(label_annot).text.view();
+                            constexpr auto lbl = std::meta::extract<LabelT>(label_annot);
+                            return std::string_view(std::define_static_string(lbl.text.view()));
                         } else {
                             return std::meta::identifier_of(mem);
                         }
