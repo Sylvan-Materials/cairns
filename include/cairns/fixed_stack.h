@@ -31,7 +31,13 @@ namespace cairns{
             }
         }
 
+        constexpr void emplace() pre(current_size < Capacity) {
+            (*this)[current_size] = T{};
+            ++current_size;
+        }
+
         template<typename... Args>
+        requires (sizeof...(Args) > 0)
         constexpr void emplace(Args&&... args) pre(current_size < Capacity) {
             // Construct the element perfectly in place
             (*this)[current_size] = T(std::forward<Args>(args)...);

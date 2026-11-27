@@ -34,7 +34,7 @@ namespace detail {
     template <typename Attr>
     consteval bool has_annotation(std::meta::info mem) noexcept {
         for (auto a : std::meta::annotations_of(mem)) {
-            if (std::meta::type_of(a) == ^^Attr) {
+            if (std::meta::remove_cvref(std::meta::type_of(a)) == ^^Attr) {
                 return true;
             }
         }
@@ -44,7 +44,7 @@ namespace detail {
     template <typename Attr>
     consteval Attr get_annotation(std::meta::info mem, Attr fallback = {}) noexcept {
         for (auto a : std::meta::annotations_of(mem)) {
-            if (std::meta::type_of(a) == ^^Attr) {
+            if (std::meta::remove_cvref(std::meta::type_of(a)) == ^^Attr) {
                 return std::meta::extract<Attr>(a);
             }
         }
