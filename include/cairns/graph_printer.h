@@ -27,6 +27,8 @@ struct print_bool_when {
     bool expected = true;
 };
 
+struct bitmask_enum {};
+
 namespace detail {
 
     template <typename Attr>
@@ -128,6 +130,7 @@ namespace detail {
             constexpr auto ctx = std::meta::access_context::current();
             template for (constexpr auto mem : std::define_static_array(std::meta::nonstatic_data_members_of(^^U, ctx))) {
                 if constexpr (!has_annotation<cairns::skip_print>(mem)) {
+                    constexpr std::meta::info label_annot = find_annotation_template<cairns::print_label>(mem);
                     constexpr std::string_view mname = [&]() consteval {
                         if constexpr (label_annot != std::meta::info{}) {
                             using LabelT = typename[:std::meta::type_of(label_annot):];
