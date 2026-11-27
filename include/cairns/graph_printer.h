@@ -31,18 +31,36 @@ namespace detail {
 
     template <typename Attr>
     consteval bool has_annotation(std::meta::info mem) noexcept {
-        return !std::meta::annotations_of(mem).empty();
+        for (auto a : std::meta::annotations_of(mem)) {
+            if (std::meta::type_of(a) == ^^Attr) {
+                return true;
+            }
+        }
+        return false;
     }
 
     template <typename Attr>
     consteval Attr get_annotation(std::meta::info mem, Attr fallback = {}) noexcept {
-        auto annots = std::meta::annotations_of(mem);
-        if (!annots.empty()) {
-            return std::meta::extract<Attr>(annots[0]);
+        for (auto a : std::meta::annotations_of(mem)) {
+            if (std::meta::type_of(a) == ^^Attr) {
+                return std::meta::extract<Attr>(a);
+            }
         }
         return fallback;
     }
 
+    template <template <auto...> class TemplateAttr>
+    consteval std::meta::info find_annotation_template(std::meta::info mem) noexcept {
+        for (auto a : std::meta::annotations_of(mem)) {
+            std::meta::info t = std::meta::type_of(a);
+            if (std::meta::has_template_arguments(t) &&
+                std::meta::template_of(t) == ^^TemplateAttr) {
+                return a;
+            }
+        }
+        return std::meta::info{};
+    }
+    
     template <typename E>
     requires std::is_enum_v<E>
     constexpr std::string_view reflect_enum_name(E value) noexcept {
