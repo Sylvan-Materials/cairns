@@ -87,6 +87,32 @@ namespace detail {
         return name;
     }
 
+    template <size_t N, typename E>
+    requires std::is_enum_v<E>
+    constexpr void format_bitmask_enum(fixed_string<N>& out, std::string_view label, E value, bool is_top_level) noexcept {
+        using Underlying = std::underlying_type_t<E>;
+        Underlying bits = static_cast<Underlying>(value);
+        if (bits == 0) return;
+
+        if (!is_top_level) out += ' ';
+        if (!label.empty() && !is_top_level) {
+            out += label;
+            out += '=';
+        }
+
+        bool first = true;
+        template for (constexpr auto e : std::define_static_array(std::meta::enumerators_of(^^E))) {
+            constexpr Underlying flag = static_cast<Underlying>([:e:]);
+            if constexpr (flag != 0) {
+                if ((bits & flag) == flag) {
+                    if (!first) out += '|';
+                    out += trim_enum_prefix(std::meta::identifier_of(e));
+                    first = false;
+                }
+            }
+        }
+    }
+    
     template <size_t N, typename T>
     constexpr void format_field_value(fixed_string<N>& out, std::string_view label, const T& val, bool is_top_level = false) noexcept {
         using U = std::remove_cvref_t<T>;
