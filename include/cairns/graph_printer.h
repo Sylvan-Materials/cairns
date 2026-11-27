@@ -60,7 +60,7 @@ namespace detail {
         }
         return std::meta::info{};
     }
-    
+
     template <typename E>
     requires std::is_enum_v<E>
     constexpr std::string_view reflect_enum_name(E value) noexcept {
@@ -128,9 +128,10 @@ namespace detail {
             constexpr auto ctx = std::meta::access_context::current();
             template for (constexpr auto mem : std::define_static_array(std::meta::nonstatic_data_members_of(^^U, ctx))) {
                 if constexpr (!has_annotation<cairns::skip_print>(mem)) {
-                    constexpr std::string_view mname = []() consteval {
-                        if constexpr (has_annotation<cairns::print_label>(mem)) {
-                            return get_annotation<cairns::print_label>(mem).text;
+                    constexpr std::string_view mname = [&]() consteval {
+                        if constexpr (label_annot != std::meta::info{}) {
+                            using LabelT = typename[:std::meta::type_of(label_annot):];
+                            return std::meta::extract<LabelT>(label_annot).text.view();
                         } else {
                             return std::meta::identifier_of(mem);
                         }
@@ -145,6 +146,8 @@ namespace detail {
                             if (!expected) out += '!';
                             out += mname;
                         }
+                    } else if constexpr (std::is_enum_v<MemberType> && has_annotation<cairns::bitmask_enum>(mem)) {
+                        format_bitmask_enum(out, mname, val.[:mem:], false);
                     } else {
                         format_field_value(out, mname, val.[:mem:], false);
                     }
