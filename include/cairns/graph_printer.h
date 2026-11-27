@@ -14,9 +14,14 @@ namespace cairns {
 
 struct skip_print {};
 
+template <size_t N>
 struct print_label {
-    std::string_view text;
+    fixed_string<N> text;
+    consteval print_label(const char (&str)[N]) : text(str) {}
 };
+
+template <size_t N>
+print_label(const char (&)[N]) -> print_label<N>;
 
 struct print_bool_when {
     bool expected = true;
@@ -128,6 +133,7 @@ namespace detail {
                 }
             }
         }
+    };
 
     template <size_t N, typename Tuple, size_t I = 1>
     constexpr void format_tuple_elements(fixed_string<N>& out, const Tuple& tup, std::string_view sep = "") noexcept {
