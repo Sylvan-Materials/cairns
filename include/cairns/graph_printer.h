@@ -12,7 +12,31 @@
 
 namespace cairns {
 
+struct skip_print {};
+
+struct print_label {
+    std::string_view text;
+};
+
+struct print_bool_when {
+    bool expected = true;
+};
+
 namespace detail {
+
+    template <typename Attr>
+    consteval bool has_annotation(std::meta::info mem) noexcept {
+        return !std::meta::annotations_of(mem, ^^Attr).empty();
+    }
+
+    template <typename Attr>
+    consteval Attr get_annotation(std::meta::info mem, Attr fallback = {}) noexcept {
+        auto annots = std::meta::annotations_of(mem, ^^Attr);
+        if (!annots.empty()) {
+            return std::meta::extract<Attr>(annots[0]);
+        }
+        return fallback;
+    }
 
     template <typename E>
     requires std::is_enum_v<E>
@@ -80,14 +104,30 @@ namespace detail {
         } else if constexpr (std::is_class_v<U>) {
             constexpr auto ctx = std::meta::access_context::current();
             template for (constexpr auto mem : std::define_static_array(std::meta::nonstatic_data_members_of(^^U, ctx))) {
-                constexpr std::string_view mname = std::meta::identifier_of(mem);
-                // Skip internal graph bookkeeping fields
-                if constexpr (mname != "id" && mname != "parent_id" && mname != "depth") {
-                    format_field_value(out, mname, val.[:mem:], false);
+                if constexpr (!has_annotation<cairns::skip_print>(mem)) {
+                    constexpr std::string_view mname = []() consteval {
+                        if constexpr (has_annotation<cairns::print_label>(mem)) {
+                            return get_annotation<cairns::print_label>(mem).text;
+                        } else {
+                            return std::meta::identifier_of(mem);
+                        }
+                    }();
+
+                    using MemberType = std::remove_cvref_t<typename[:std::meta::type_of(mem):]>;
+
+                    if constexpr (std::is_same_v<MemberType, bool> && has_annotation<cairns::print_bool_when>(mem)) {
+                        constexpr bool expected = get_annotation<cairns::print_bool_when>(mem).expected;
+                        if (val.[:mem:] == expected) {
+                            if (!is_top_level) out += ' ';
+                            if (!expected) out += '!';
+                            out += mname;
+                        }
+                    } else {
+                        format_field_value(out, mname, val.[:mem:], false);
+                    }
                 }
             }
         }
-    }
 
     template <size_t N, typename Tuple, size_t I = 1>
     constexpr void format_tuple_elements(fixed_string<N>& out, const Tuple& tup, std::string_view sep = "") noexcept {
