@@ -51,7 +51,7 @@ namespace detail {
         return fallback;
     }
 
-    template <template <auto...> class TemplateAttr>
+    template <template <size_t...> class TemplateAttr>
     consteval std::meta::info find_annotation_template(std::meta::info mem) noexcept {
         for (auto a : std::meta::annotations_of(mem)) {
             std::meta::info t = std::meta::type_of(a);
