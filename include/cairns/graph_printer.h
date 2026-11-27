@@ -31,12 +31,12 @@ namespace detail {
 
     template <typename Attr>
     consteval bool has_annotation(std::meta::info mem) noexcept {
-        return !std::meta::annotations_of(mem, ^^Attr).empty();
+        return !std::meta::annotations_of(mem).empty();
     }
 
     template <typename Attr>
     consteval Attr get_annotation(std::meta::info mem, Attr fallback = {}) noexcept {
-        auto annots = std::meta::annotations_of(mem, ^^Attr);
+        auto annots = std::meta::annotations_of(mem);
         if (!annots.empty()) {
             return std::meta::extract<Attr>(annots[0]);
         }
